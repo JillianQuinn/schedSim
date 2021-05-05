@@ -27,7 +27,69 @@ class schedSim:
         fp.write("Average -- Response: {0:.2f} Turnaround {1:.2f}  Wait {2:.2f}\n".format((sum(responses))/(len(responses)), (sum(turnarounds))/(len(turnarounds)), (sum(waits))/(len(waits))))
 
     
-    # def RR(self, jobTimes, quantum):
+    def RR(self, jobTimes, quantum):
+        fp = open("testresult.out", "w+")
+        waits = []
+        turnarounds = []
+        time = 0
+        result = []
+        responses = []
+        seen = 0
+        q = queue.Queue(999999999999)
+        
+        for job in jobTimes:
+            job.append(job[1])
+
+        q.put(jobTimes[0])
+        time = jobTimes[0][2]
+
+        while q.empty() == False:
+            job = q.get()
+            if (job[0] == seen):
+                seen += 1
+                responses.append(time - job[2] + 1)
+            if (int(quantum) < job[1]):
+                job[1] -= int(quantum)
+                for findjob in jobTimes:
+                    if (job[0] == findjob[0]):
+                        findjob[1] = job[1]
+                time += int(quantum)
+                for jobt in jobTimes:
+                    if (jobt[0] > job[0]) & (jobt[1] > 0) & (jobt[2] <= time):
+                        found = False
+                        for el in list(q.queue):
+                            if jobt[0] == el[0]:
+                                found = True
+                        if found == False:
+                            q.put(jobt)
+                q.put(job)
+            else:
+                time += job[1]
+                turnarounds.append(time - job[2])
+                waits.append(time - job[2] - job[3])
+                job[1] = 0
+                templist = []
+                templist.append(job[0])
+                templist.append(time - job[2])
+                templist.append(time - job[2]- job[3])
+                result.append(templist)
+                for jobt in jobTimes:
+                    if (jobt[0] > job[0]) & (jobt[1] > 0) & (jobt[2] <= time):
+                        found = False
+                        for el in list(q.queue):
+                            if jobt[0] == el[0]:
+                                found = True
+                        if found == False:
+                            q.put(jobt)
+                
+        result = sorted(result, key=lambda x : x[0])
+        count = 0
+        for item in result:
+            item.append(responses[count])
+            count += 1
+            fp.write("Job  {0} -- Response: {1:.2f}  Turnaround: {2:.2f}  Wait: {3:.2f} \n".format(item[0], item[3], item[1], item[2]))
+
+        fp.write("Average -- Response: {0:.2f}  Turnaround: {1:.2f}  Wait: {2:.2f}\n".format((sum(responses))/(len(responses)),(sum(turnarounds))/(len(turnarounds)), (sum(waits))/(len(waits))))
 
     def SRJN(self, jobTimes):
         result = []
