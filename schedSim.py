@@ -1,4 +1,5 @@
 import sys
+import queue
 
 class schedSim:       
 
@@ -27,7 +28,27 @@ class schedSim:
         fp.write("Average -- Response: {0:.2f} Turnaround {1:.2f}  Wait {2:.2f}\n".format((sum(responses))/(len(responses)), (sum(turnarounds))/(len(turnarounds)), (sum(waits))/(len(waits))))
 
     
-    # def RR(self, jobTimes, quantum):
+    def RR(self, jobTimes, quantum):
+        fp = open("testRRResult.out", "w+")
+        waits = []
+        turnarounds = []
+        time = 0
+        q = queue.Queue(999999999999)
+        for job in jobTimes:
+            job.append(job[1])
+            q.put(job)
+        while q.empty() == False:
+            job = q.get()
+            if (int(quantum) < job[1]):
+                job[1] -= int(quantum)
+                q.put(job)
+                time += int(quantum)
+            else:
+                time += job[1]
+                turnarounds.append(time - job[2])
+                waits.append(time - job[2] - job[3])
+                fp.write("Job  {0} -- Turnaround: {1:.2f}  Wait {2:.2f} \n".format(job[0], time - job[2], time - job[2]- job[3]))
+        fp.write("Average -- Turnaround: {0:.2f}  Wait: {1:.2f}\n".format((sum(turnarounds))/(len(turnarounds)), (sum(waits))/(len(waits))))
 
     def SRJN(self, jobTimes):
         result = []
