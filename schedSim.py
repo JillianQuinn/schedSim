@@ -36,47 +36,43 @@ class schedSim:
         turnarounds = []
         time = 0
         fp = open("testSRJNResult.out", "w+")
-        # if first job doesnt arrive at time 0
-        if jobTimes[0][2] != 0:
-            time = jobTimes[0][2]
-        job = jobTimes[0]
-        res = []
-        res.append(jobTimes[0][0])
-        jobTimes.pop(0)
-        responses.append(time - job[2])
-        res.append(time - job[2])
-        time += job[1]
-        res.append(float(time - job[2]))
-        turnarounds.append(float(time - job[2]))
-        res.append(float(float(time - job[2]) - job[1]))
-        waits.append(float(float(time - job[2]) - job[1]))
-        result.append(res)
+        time = 0
+        # job indexes are [job#, remaining burst, arrival, start, end, total burst]
         while(len(jobTimes) > 0):
-            res = []
-            possibleJobs = [i for i in jobTimes if i[2] <= time]
+            possibleJobs = [i for i in jobTimes if i[2] <= time and i[1] > 0]
+            if len(possibleJobs) == 0:
+                time += 1
+                continue
             possibleJobs.sort(key = lambda x: x[1])
             job = possibleJobs[0]
-            # start time of next job
-            if time < job[2]:
-                time = job[2]
-            res.append(job[0])
-            jobTimes.remove(job)
-            if time < job[1]:
-                time = job[1]
-            res.append(time - job[2])
-            responses.append(time - job[2])
-            time += job[1]
-            res.append(float(time - job[2]))
-            turnarounds.append(float(time - job[2]))
-            res.append(float(float(time - job[2]) - job[1]))
-            waits.append(float(float(time - job[2]) - job[1]))
-            result.append(res)
+            if (len(job) == 3):
+                # keep track of start time 
+                job.append(time)
+                # create field for end time
+                job.append(-1)
+                # keep track of total burst time
+                job.append(job[1]) 
+            job[1] -= 1
+            if job[1] == 0: 
+                res = []
+                # if job finishing, set end time, remove it from the array, calculate 
+                job[4] = time
+                jobTimes = [i for i in jobTimes if i[1] > 0]
+                # job name
+                res.append(job[0])
+                res.append(job[3] - job[2]) # time to get CPU - arrival time
+                responses.append(job[3] - job[2])
+                res.append(float((time + 1) - job[2])) # exit time - arrival time
+                turnarounds.append(float((time + 1) - job[2]))
+                res.append(float(float((time + 1) - job[2]) - job[5]))
+                waits.append(float(float((time + 1) - job[2]) - job[5])) # turnaround - burst
+                result.append(res)
+            time += 1
         result.sort(key = lambda x: x[0])
         for i in range(len(result)):
-            fp.write("Job   {0} -- Response: {1:.2f}   Turnaround {2:.2f}  Wait {3:.2f}\n".format(result[i][0], result[i][1], result[i][2], result[i][3]))
-        fp.write("Average -- Response: {0:.2f}  Turnaround {1:.2f}   Wait {2:.2f}\n".format((sum(responses))/(len(responses)), (sum(turnarounds))/(len(turnarounds)), (sum(waits))/(len(waits))))
+            fp.write("Job   {0} -- Response: {1:.2f}  Turnaround {2:.2f}  Wait {3:.2f}\n".format(result[i][0], result[i][1], result[i][2], result[i][3]))
+        fp.write("Average -- Response: {0:.2f}  Turnaround {1:.2f}  Wait {2:.2f}\n".format((sum(responses))/(len(responses)), (sum(turnarounds))/(len(turnarounds)), (sum(waits))/(len(waits))))
         
-    
 def main():
     ss = schedSim()
     try:
