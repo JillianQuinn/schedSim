@@ -2,7 +2,19 @@
 # Name: Tyra Krivonak and Jillian Quinn
 
 # Instructions: 
-make
+The MakeFile will create an executable that you can then run with the preferred arguments
+make clean
+make schedSim
+./schedSim <input file> -p <algorithm> -q <quantum>
+Inputs:
+    Algorithm is an optional input and one of FIFO, SJRN, RR (Default is FIFO)
+    quantum is an optional integer > 0
+    input file is the .in file with the bust time and arrival time
+example:
+    ./schedSim test1.in -p SJRN
+    ./schedSim test1.in -p FIFO
+    ./schedSim test1.in -p RR -q 2
+    ./schedSim test1.in -p RR
 
 # Questions:
 ## For what types of workloads does SRTN deliver the same turnaround times as FIFO?

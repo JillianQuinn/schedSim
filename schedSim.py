@@ -30,7 +30,7 @@ class schedSim:
 
     
     def RR(self, jobTimes, quantum):
-        fp = open("testresult.out", "w+")
+        fp = open("testResult.out", "w+")
         waits = []
         turnarounds = []
         time = 0
@@ -99,7 +99,7 @@ class schedSim:
         waits = []
         turnarounds = []
         time = 0
-        fp = open("testSRJNResult.out", "w+")
+        fp = open("testResult.out", "w+")
         time = 0
         # job indexes are [job#, remaining burst, arrival, start, end, total burst]
         while(len(jobTimes) > 0):
@@ -152,12 +152,12 @@ def main():
             jobTimes[i] = [i] + jobTimes[i]
             
         # get algorithm
-        if sys.argv[2] == "-p":
+        if len(sys.argv) > 2 and sys.argv[2] == "-p":
             algorithm = sys.argv[3]
         elif len(sys.argv) == 6 and sys.argv[4] == "-p":
             algorithm = sys.argv[5]
         # get quantum and call function
-        if sys.argv[2] == "-q":
+        if len(sys.argv) > 2 and sys.argv[2] == "-q":
             quantum = sys.argv[3]
         elif len(sys.argv) == 6 and sys.argv[4] == "-q":
             quantum = sys.argv[5]
